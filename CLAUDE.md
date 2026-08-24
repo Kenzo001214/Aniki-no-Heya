@@ -49,7 +49,8 @@
 | リポジトリ | 役割 |
 |---|---|
 | `traffic-watch` | ルート渋滞監視。稼働中。平日15時台に3回チェック→Discord通知 |
-| `x-post` | X（Twitter）への経済指標投稿。PC版から移植中 |
+| `x-post` | X（Twitter）への経済指標投稿。GitHub Actions で稼働中 |
+| `shinpuro` | 物流データ変換（伝票→抽出→座標付与→Drive納入）。移行中 |
 | `claude-lab` | 作業拠点。引き継ぎ書とプロジェクト一覧 |
 | `Aniki-no-Heya` | ここ。相談部屋 |
 
