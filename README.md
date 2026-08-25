@@ -23,6 +23,7 @@ Claude Code で新しいセッションを開き、このリポジトリを選�
 
 | ファイル | 中身 |
 |---|---|
+| [`notes/現況.md`](notes/現況.md) | **いま何がどうなっているか（最初に読む）** |
 | [`notes/git-github.md`](notes/git-github.md) | Git と GitHub の基礎・料金・削除や改名 |
 | [`notes/claude-code.md`](notes/claude-code.md) | Claude Code がどこで動いているか・コンテキスト管理・プラン |
 | [`notes/idea-list.md`](notes/idea-list.md) | 作ってみたいものの置き場 |
