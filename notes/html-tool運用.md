@@ -123,18 +123,38 @@ B タイプでは追加は「見た目のため」ではなく**データを守�
 | | A. 鍵付きURL | B. アプリを改造 | C. iPhone内サーバー |
 |---|---|---|---|
 | 中身 | Cloudflare Pages + Access | 保存方式を作り変える | WorldWideWeb 等のアプリ |
-| 費用 | 無料（50人まで） | 無料 | 無料（アプリ内課金あり） |
+| 費用 | **年1,500円ほど**（独自ドメイン代） | 無料 | 無料（アプリ内課金あり） |
 | アプリの改造 | **不要** | 必要 | **不要** |
+| 設定の手間 | **大きい（一度きり）** | なし | ほぼなし |
 | 使い勝手 | いまと全く同じ | 保存/読込が手動に | 毎回サーバー起動が必要 |
 | ネット | 必要 | **不要** | 不要 |
 | 7日で消える問題 | ホーム画面追加で回避 | **無関係（消えない）** | 起動のたび別扱いの恐れ |
 
-### A. Cloudflare Pages + Cloudflare Access（推奨）
-静的サイトを無料で置ける Cloudflare Pages に、無料の認証機能 Access を被せる。
+### A. Cloudflare Pages + Cloudflare Access
+静的サイトを無料で置ける Cloudflare Pages に、認証機能 Access を被せる。
 **指定したメールアドレスの本人しか開けないURL**になる。
-tiiny.host が有料でやっているパスワード保護と同じことが無料でできる。
-HTTPS なので localStorage も音声入力もそのまま動く＝**アプリは1行も直さなくていい**。
-初回設定だけやや手間（Cloudflareアカウント作成 → Pages にデプロイ → Zero Trust で Access 設定）。
+HTTPS なので localStorage も音声入力もそのまま動く＝**アプリは1行も直さなくていい**のが利点。
+
+⚠️ **訂正: これは「完全無料」ではない。**
+Cloudflare が最初にくれる `〇〇.pages.dev` というURLは
+**Cloudflare 自身のドメインなので、Access で確実に保護できない**
+（公式にも「所有していないドメインは保護できない」とある。
+無理に設定すると「認証画面は出るのに素通りできる」中途半端な状態になりやすい）。
+
+→ **確実に鍵をかけるには独自ドメインが要る。** Cloudflare Registrar なら原価販売で
+年1,500円ほど（`.com` の場合）。tiiny.host の月額よりは安いが、無料ではない。
+
+入口は製品紹介ページ（cloudflare.com/products/pages/）ではなく
+**ダッシュボード（dash.cloudflare.com）→ Workers & Pages**。
+GitHub の **Private リポジトリのまま連携できる**ので、置き場所は非公開にできる。
+
+手順の全体像:
+1. dash.cloudflare.com でアカウント作成
+2. Workers & Pages → Create → Pages → GitHub の Private リポジトリを連携
+3. Registrar で独自ドメインを取得（年1,500円ほど）
+4. Pages の Custom domains にそのドメインを割り当て
+5. Zero Trust → Access → Applications → Self-hosted でそのドメインを登録し、
+   自分のメールアドレスだけ許可するポリシーを作る
 
 ### B. アプリを改造して完全オフライン化
 **`file://` ではブラウザの自動保存が一切使えない**（localStorage も IndexedDB も
@@ -155,6 +175,13 @@ iPhone キーボードのマイク入力で代替する。
 **localStorage も音声入力も動く＝改造不要**。
 難点: 使うたびにサーバーアプリを起動する必要がある。人に渡すツールには向かない。
 
+## まとめ（どれを選ぶか）
+
+- **オーナー自身が使う** → **B（改造）**。0円・アカウント不要・完全オフライン
+- **改造せず今のまま使いたい** → **C**。ただし毎回サーバーアプリの起動が要る
+- **他人に配る / どこからでも開きたい** → A。年1,500円と初回設定を許容できるなら
+
 出典:
 - https://www.cloudflare.com/plans/free/
+- https://developers.cloudflare.com/pages/platform/known-issues/
 - https://iconfactory.com/worldwideweb/
