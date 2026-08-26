@@ -1,0 +1,794 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#ffffff" />
+  <title>先生の最優先メモ</title>
+  <style>
+    :root{
+      --bg:#f7f7f5;
+      --card:#ffffff;
+      --text:#1f2328;
+      --muted:#6b7280;
+      --line:#e5e7eb;
+      --accent:#2563eb;
+      --danger:#b91c1c;
+      --ok:#047857;
+      --warn:#92400e;
+      --shadow:0 8px 24px rgba(0,0,0,.06);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Hiragino Sans","Yu Gothic",sans-serif;
+      background:var(--bg);
+      color:var(--text);
+    }
+    .wrap{
+      max-width:760px;
+      margin:0 auto;
+      padding:18px 14px 48px;
+    }
+    h1{
+      font-size:24px;
+      margin:8px 0 6px;
+    }
+    .lead{
+      margin:0 0 12px;
+      color:var(--muted);
+      line-height:1.6;
+    }
+    .modebar{
+      border-radius:12px;
+      padding:10px 12px;
+      font-size:13px;
+      line-height:1.5;
+      margin-bottom:14px;
+      border:1px solid var(--line);
+      background:#f3f4f6;
+      color:#374151;
+    }
+    .modebar.ok{
+      background:#ecfdf5;
+      border-color:#a7f3d0;
+      color:var(--ok);
+    }
+    .modebar.warn{
+      background:#fffbeb;
+      border-color:#fcd34d;
+      color:var(--warn);
+      font-weight:700;
+    }
+    .card{
+      background:var(--card);
+      border:1px solid var(--line);
+      border-radius:16px;
+      padding:16px;
+      box-shadow:var(--shadow);
+      margin-bottom:14px;
+    }
+    label{
+      display:block;
+      font-weight:700;
+      margin-bottom:8px;
+    }
+    select, textarea, input{
+      width:100%;
+      font:inherit;
+      padding:12px;
+      border:1px solid #cfd4dc;
+      border-radius:12px;
+      background:#fff;
+      color:var(--text);
+    }
+    textarea{
+      min-height:92px;
+      resize:vertical;
+    }
+    .row{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    button{
+      border:0;
+      border-radius:12px;
+      padding:12px 14px;
+      font:inherit;
+      font-weight:700;
+      cursor:pointer;
+      color:var(--text);
+    }
+    .primary{background:var(--accent);color:#fff}
+    .secondary{background:#eef2ff;color:#1e3a8a}
+    .ghost{background:#f3f4f6;color:#374151}
+    .danger{background:#fee2e2;color:var(--danger)}
+    .status{
+      margin-top:10px;
+      color:var(--muted);
+      min-height:1.5em;
+      font-size:14px;
+      line-height:1.5;
+    }
+    .section-title{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:8px;
+      margin:0 0 10px;
+    }
+    .section-title h2{
+      font-size:18px;
+      margin:0;
+    }
+    .count{
+      font-size:13px;
+      color:var(--muted);
+    }
+    .item{
+      border:1px solid var(--line);
+      border-radius:12px;
+      padding:12px;
+      margin:8px 0;
+      background:#fff;
+    }
+    .item-top{
+      display:flex;
+      justify-content:space-between;
+      gap:10px;
+      align-items:flex-start;
+    }
+    .item-text{
+      font-size:16px;
+      line-height:1.55;
+      white-space:pre-wrap;
+      word-break:break-word;
+      flex:1;
+    }
+    .badge{
+      display:inline-block;
+      font-size:12px;
+      padding:4px 8px;
+      border-radius:999px;
+      background:#f3f4f6;
+      color:#374151;
+      margin-top:8px;
+    }
+    .actions{
+      display:flex;
+      gap:6px;
+      flex-wrap:wrap;
+      margin-top:10px;
+    }
+    .actions button{
+      padding:7px 10px;
+      font-size:13px;
+      font-weight:600;
+    }
+    .empty{
+      color:var(--muted);
+      font-size:14px;
+      margin:4px 0 0;
+    }
+    .priority{
+      border-left:5px solid #111827;
+    }
+    .datagrid{
+      display:grid;
+      grid-template-columns:1fr 1fr;
+      gap:10px;
+    }
+    .hint{
+      font-size:13px;
+      color:var(--muted);
+      line-height:1.6;
+      margin:10px 0 0;
+    }
+    .transfer textarea{
+      min-height:150px;
+      font-family:ui-monospace,"SF Mono",Menlo,monospace;
+      font-size:12px;
+    }
+    [hidden]{display:none !important}
+    @media(max-width:520px){
+      .row,.datagrid{grid-template-columns:1fr}
+      h1{font-size:22px}
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <h1>先生の最優先メモ</h1>
+    <p class="lead">
+      1項目ずつ話して追加し、4領域に整理します。必要なら「最優先」にして、月曜の最初の行動を決められます。
+    </p>
+
+    <div class="modebar" id="mode"></div>
+
+    <section class="card">
+      <label for="category">領域</label>
+      <select id="category">
+        <option value="授業準備・教材研究">授業準備・教材研究</option>
+        <option value="児童の支援・記録">児童の支援・記録</option>
+        <option value="保護者対応">保護者対応</option>
+        <option value="校務・提出物">校務・提出物</option>
+      </select>
+
+      <label for="task" style="margin-top:12px;">話す内容 / 入力内容</label>
+      <textarea id="task" placeholder="例：月曜日の算数の教材を準備する"></textarea>
+
+      <div class="row">
+        <button class="secondary" id="voiceBtn">🎙 音声入力</button>
+        <button class="primary" id="addBtn">＋ 追加する</button>
+      </div>
+      <div class="status" id="status"></div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">
+        <h2>今週の最優先</h2>
+        <span class="count" id="priorityCount"></span>
+      </div>
+      <div id="priorityList"></div>
+    </section>
+
+    <div id="lists"></div>
+
+    <section class="card">
+      <div class="section-title">
+        <h2>月曜の最初の行動</h2>
+      </div>
+      <input id="firstAction" placeholder="例：今週の締切を確認する" />
+      <div class="status">ここは自由入力です。iPhoneのキーボード音声入力でも入力できます。</div>
+    </section>
+
+    <section class="card">
+      <div class="section-title">
+        <h2>データの保存</h2>
+      </div>
+      <div class="datagrid">
+        <button class="primary" id="exportBtn">💾 ファイルに書き出す</button>
+        <button class="secondary" id="importBtn">📂 ファイルから読み込む</button>
+        <button class="ghost" id="textBtn">📄 テキストで表示</button>
+        <button class="ghost" id="copyBtn">📋 まとめをコピー</button>
+      </div>
+      <input type="file" id="fileInput" accept=".json,application/json,text/plain" hidden />
+      <p class="hint" id="dataHint"></p>
+      <div class="datagrid" style="margin-top:10px">
+        <button class="danger" id="clearBtn">🗑 全部消す</button>
+      </div>
+    </section>
+
+    <section class="card transfer" id="transferCard" hidden>
+      <div class="section-title">
+        <h2 id="transferTitle">テキストでのやりとり</h2>
+      </div>
+      <p class="hint" id="transferHint" style="margin-top:0"></p>
+      <textarea id="transferText"></textarea>
+      <div class="datagrid" style="margin-top:10px">
+        <button class="secondary" id="transferCopy">📋 全部コピー</button>
+        <button class="primary" id="transferLoad" hidden>読み込む</button>
+        <button class="ghost" id="transferSaved" hidden>✓ 保存できました</button>
+        <button class="ghost" id="transferClose">閉じる</button>
+      </div>
+    </section>
+
+    <p class="hint" id="foot"></p>
+  </main>
+
+<script>
+(() => {
+  "use strict";
+
+  const CATEGORIES = [
+    "授業準備・教材研究",
+    "児童の支援・記録",
+    "保護者対応",
+    "校務・提出物"
+  ];
+  const STORE_KEY = "teacher-priority-items";
+  const FIRST_KEY = "teacher-first-action";
+
+  const $ = (id) => document.getElementById(id);
+  const category = $("category");
+  const task = $("task");
+  const voiceBtn = $("voiceBtn");
+  const addBtn = $("addBtn");
+  const status = $("status");
+  const lists = $("lists");
+  const priorityList = $("priorityList");
+  const priorityCount = $("priorityCount");
+  const firstAction = $("firstAction");
+  const mode = $("mode");
+  const dataHint = $("dataHint");
+  const foot = $("foot");
+
+  const exportBtn = $("exportBtn");
+  const importBtn = $("importBtn");
+  const textBtn = $("textBtn");
+  const copyBtn = $("copyBtn");
+  const clearBtn = $("clearBtn");
+  const fileInput = $("fileInput");
+
+  const transferCard = $("transferCard");
+  const transferTitle = $("transferTitle");
+  const transferHint = $("transferHint");
+  const transferText = $("transferText");
+  const transferCopy = $("transferCopy");
+  const transferLoad = $("transferLoad");
+  const transferSaved = $("transferSaved");
+  const transferClose = $("transferClose");
+
+  // ------------------------------------------------------------------
+  // 保存先が使えるかを最初に調べる。
+  // file:// で開いた場合、Safari は localStorage を一切使わせない。
+  // ここで落ちるとアプリ全体が止まるので、必ず try で包む。
+  // ------------------------------------------------------------------
+  let autoSave = false;
+  try {
+    const probe = "__probe__";
+    window.localStorage.setItem(probe, "1");
+    window.localStorage.removeItem(probe);
+    autoSave = true;
+  } catch (e) {
+    autoSave = false;
+  }
+
+  let data = [];
+  let dirty = false;
+
+  if (autoSave) {
+    try {
+      const raw = window.localStorage.getItem(STORE_KEY);
+      const parsed = raw ? JSON.parse(raw) : [];
+      if (Array.isArray(parsed)) data = parsed;
+      firstAction.value = window.localStorage.getItem(FIRST_KEY) || "";
+    } catch (e) {
+      data = [];
+    }
+  }
+
+  function persist() {
+    if (!autoSave) { dirty = true; renderMode(); return; }
+    try {
+      window.localStorage.setItem(STORE_KEY, JSON.stringify(data));
+      window.localStorage.setItem(FIRST_KEY, firstAction.value);
+      dirty = false;
+    } catch (e) {
+      autoSave = false;
+      dirty = true;
+    }
+    renderMode();
+  }
+
+  function renderMode() {
+    if (autoSave) {
+      mode.className = "modebar ok";
+      mode.textContent = "自動保存：有効　入力するたびに、この端末のブラウザに保存されます。";
+      dataHint.textContent =
+        "自動保存は効いていますが、機種変更や履歴の消去には備えられません。ときどき「ファイルに書き出す」でバックアップを取っておくと安心です。";
+    } else if (dirty) {
+      mode.className = "modebar warn";
+      mode.textContent = "⚠️ 未保存の変更があります。閉じる前に「ファイルに書き出す」を押してください。";
+      dataHint.textContent =
+        "オフラインで開いているため自動保存は使えません。変更したら必ず「ファイルに書き出す」、次に開いたら「ファイルから読み込む」を押してください。";
+    } else {
+      mode.className = "modebar";
+      mode.textContent = "自動保存：無効（オフラインで開いています）。変更したら書き出してください。";
+      dataHint.textContent =
+        "オフラインで開いているため自動保存は使えません。変更したら必ず「ファイルに書き出す」、次に開いたら「ファイルから読み込む」を押してください。";
+    }
+  }
+
+  function setStatus(msg) {
+    status.textContent = msg;
+  }
+
+  const escapeHtml = (s) => String(s).replace(/[&<>"']/g, m => ({
+    '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'
+  }[m]));
+
+  const newId = () => Date.now().toString(36) + Math.random().toString(36).slice(2);
+
+  // ---------------------------- 画面の描画 ----------------------------
+
+  function renderItem(item){
+    return `
+      <div class="item ${item.priority ? "priority" : ""}">
+        <div class="item-top">
+          <div class="item-text">${escapeHtml(item.text)}</div>
+        </div>
+        <div class="badge">${escapeHtml(item.category)}</div>
+        <div class="actions">
+          <button class="ghost" data-action="priority" data-id="${item.id}">
+            ${item.priority ? "★ 最優先を外す" : "☆ 最優先にする"}
+          </button>
+          <button class="ghost" data-action="edit" data-id="${item.id}">編集</button>
+          <button class="danger" data-action="delete" data-id="${item.id}">削除</button>
+        </div>
+      </div>`;
+  }
+
+  function render(){
+    const priorities = data.filter(x => x.priority);
+    priorityCount.textContent = `${priorities.length}件`;
+
+    priorityList.innerHTML = priorities.length
+      ? priorities.map(renderItem).join("")
+      : `<p class="empty">まだ最優先はありません。</p>`;
+
+    lists.innerHTML = CATEGORIES.map(cat => {
+      const items = data.filter(x => x.category === cat);
+      return `
+        <section class="card">
+          <div class="section-title">
+            <h2>${escapeHtml(cat)}</h2>
+            <span class="count">${items.length}件</span>
+          </div>
+          ${items.length ? items.map(renderItem).join("") : `<p class="empty">まだ項目はありません。</p>`}
+        </section>`;
+    }).join("");
+
+    document.querySelectorAll("[data-action]").forEach(btn => {
+      btn.addEventListener("click", () => handleAction(btn.dataset.action, btn.dataset.id));
+    });
+  }
+
+  function handleAction(action, id){
+    const item = data.find(x => x.id === id);
+    if(!item) return;
+
+    if(action === "delete"){
+      data = data.filter(x => x.id !== id);
+    }
+    if(action === "priority"){
+      item.priority = !item.priority;
+    }
+    if(action === "edit"){
+      const updated = prompt("内容を編集してください", item.text);
+      if(updated !== null && updated.trim()) item.text = updated.trim();
+    }
+    persist();
+    render();
+  }
+
+  function addTask(){
+    const text = task.value.trim();
+    if(!text){
+      setStatus("項目を入力してください。");
+      return;
+    }
+    data.unshift({
+      id: newId(),
+      category: category.value,
+      text,
+      priority: false
+    });
+    task.value = "";
+    setStatus("追加しました。次の項目をどうぞ。");
+    persist();
+    render();
+  }
+
+  addBtn.addEventListener("click", addTask);
+  task.addEventListener("keydown", (e) => {
+    if((e.metaKey || e.ctrlKey) && e.key === "Enter") addTask();
+  });
+  firstAction.addEventListener("input", persist);
+
+  // ---------------------------- 音声入力 ----------------------------
+  // マイクは https:// でしか使えない。file:// で開いた場合はここが動かないので、
+  // キーボードのマイク入力に案内する。
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let recognition = null;
+
+  if(SpeechRecognition){
+    recognition = new SpeechRecognition();
+    recognition.lang = "ja-JP";
+    recognition.interimResults = true;
+    recognition.continuous = false;
+
+    recognition.onstart = () => {
+      setStatus("聞き取り中です。1項目だけ話してください…");
+      voiceBtn.textContent = "🎙 聞き取り中…";
+      voiceBtn.disabled = true;
+    };
+
+    recognition.onresult = (event) => {
+      let text = "";
+      for(let i = event.resultIndex; i < event.results.length; i++){
+        text += event.results[i][0].transcript;
+      }
+      task.value = text.trim();
+    };
+
+    recognition.onerror = () => {
+      setStatus("音声入力を開始できませんでした。キーボードのマイク入力をお使いください。");
+    };
+
+    recognition.onend = () => {
+      voiceBtn.textContent = "🎙 音声入力";
+      voiceBtn.disabled = false;
+      if(task.value.trim()){
+        setStatus("聞き取りました。内容を確認して「追加する」を押してください。");
+      }
+    };
+
+    voiceBtn.addEventListener("click", () => {
+      try { recognition.start(); }
+      catch(e) { setStatus("もう一度お試しください。"); }
+    });
+  } else {
+    voiceBtn.addEventListener("click", () => {
+      setStatus("このブラウザでは音声認識ボタンが使えません。iPhoneのキーボードにあるマイク入力を使ってください。");
+      task.focus();
+    });
+  }
+
+  // ---------------------------- コピー ----------------------------
+
+  async function copyText(text){
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        await navigator.clipboard.writeText(text);
+        return true;
+      }
+    } catch (e) { /* 下の方法にまわす */ }
+    try {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.top = "0";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.focus();
+      ta.select();
+      ta.setSelectionRange(0, text.length);
+      const ok = document.execCommand("copy");
+      ta.remove();
+      return ok;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // ---------------------------- 書き出し / 読み込み ----------------------------
+
+  function buildPayload(){
+    return JSON.stringify({
+      app: "sensei-memo",
+      version: 1,
+      savedAt: new Date().toISOString(),
+      firstAction: firstAction.value,
+      items: data
+    }, null, 2);
+  }
+
+  function stamp(){
+    const d = new Date();
+    const p = (n) => String(n).padStart(2, "0");
+    return `${d.getFullYear()}${p(d.getMonth()+1)}${p(d.getDate())}-${p(d.getHours())}${p(d.getMinutes())}`;
+  }
+
+  function openTransfer(opts){
+    transferTitle.textContent = opts.title;
+    transferHint.textContent = opts.hint;
+    transferText.value = opts.value || "";
+    transferLoad.hidden = !opts.showLoad;
+    transferSaved.hidden = !opts.showSaved;
+    transferCard.hidden = false;
+    transferCard.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  async function exportFile(){
+    const text = buildPayload();
+    const name = `sensei-memo-${stamp()}.json`;
+
+    // 1) 共有シート（iPhone で一番確実。「ファイルに保存」を選べる）
+    try {
+      if (navigator.canShare && typeof File === "function") {
+        const file = new File([text], name, { type: "application/json" });
+        if (navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: name });
+          dirty = false;
+          renderMode();
+          setStatus("共有メニューから「ファイルに保存」を選べば完了です。");
+          return;
+        }
+      }
+    } catch (e) {
+      if (e && e.name === "AbortError") return; // 利用者が取り消した
+    }
+
+    // 2) ダウンロード（iOS のバージョンによっては何も起きないことがある）
+    let attempted = false;
+    try {
+      const blob = new Blob([text], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = name;
+      a.style.display = "none";
+      document.body.appendChild(a);
+      a.click();
+      setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 2000);
+      attempted = true;
+    } catch (e) {
+      attempted = false;
+    }
+
+    // 3) 手で運ぶ道を必ず残す
+    openTransfer({
+      title: "書き出し",
+      hint: attempted
+        ? "ダウンロードが始まっていれば、この画面は閉じて構いません。何も起きなかった場合は、下の「全部コピー」を押して、メモ帳などに貼り付けて保存してください。"
+        : "下の「全部コピー」を押して、メモ帳などに貼り付けて保存してください。",
+      value: text,
+      showSaved: true
+    });
+  }
+
+  function readFile(file){
+    if (file.text) return file.text();
+    return new Promise((resolve, reject) => {
+      const r = new FileReader();
+      r.onload = () => resolve(String(r.result || ""));
+      r.onerror = () => reject(r.error);
+      r.readAsText(file);
+    });
+  }
+
+  function applyImport(text){
+    let obj;
+    try {
+      obj = JSON.parse(text);
+    } catch (e) {
+      setStatus("読み取れませんでした。書き出したファイルの中身をそのまま渡してください。");
+      return false;
+    }
+    const items = Array.isArray(obj) ? obj : (obj && obj.items);
+    if (!Array.isArray(items)) {
+      setStatus("メモのデータが見つかりませんでした。");
+      return false;
+    }
+    if (data.length && !confirm(`いまの ${data.length} 件を、読み込んだ ${items.length} 件で置き換えます。よろしいですか？`)) {
+      return false;
+    }
+    // 外から来たデータなので、形を整えてから受け入れる
+    data = items
+      .filter(x => x && typeof x.text === "string" && x.text.trim())
+      .map(x => ({
+        id: x.id ? String(x.id) : newId(),
+        category: CATEGORIES.indexOf(x.category) >= 0 ? x.category : CATEGORIES[0],
+        text: String(x.text),
+        priority: !!x.priority
+      }));
+    if (obj && typeof obj.firstAction === "string") {
+      firstAction.value = obj.firstAction;
+    }
+    dirty = false;
+    persist();
+    render();
+    renderMode();
+    setStatus(`${data.length}件を読み込みました。`);
+    return true;
+  }
+
+  exportBtn.addEventListener("click", exportFile);
+
+  importBtn.addEventListener("click", () => fileInput.click());
+
+  fileInput.addEventListener("change", async () => {
+    const file = fileInput.files && fileInput.files[0];
+    fileInput.value = "";
+    if (!file) return;
+    try {
+      const text = await readFile(file);
+      if (applyImport(text)) transferCard.hidden = true;
+    } catch (e) {
+      setStatus("ファイルを読み込めませんでした。「テキストで表示」から貼り付ける方法もあります。");
+    }
+  });
+
+  textBtn.addEventListener("click", () => {
+    openTransfer({
+      title: "テキストでのやりとり",
+      hint: "いまの中身が下に入っています。コピーして保管できます。逆に、保管しておいた中身をここに貼り付けて「読み込む」を押すと復元できます。",
+      value: buildPayload(),
+      showLoad: true,
+      showSaved: true
+    });
+  });
+
+  transferCopy.addEventListener("click", async () => {
+    const ok = await copyText(transferText.value);
+    transferHint.textContent = ok
+      ? "コピーしました。メモ帳などに貼り付けて保存してください。"
+      : "コピーできませんでした。上の枠を長押しして「すべてを選択」→「コピー」してください。";
+  });
+
+  transferLoad.addEventListener("click", () => {
+    if (applyImport(transferText.value)) transferCard.hidden = true;
+  });
+
+  transferSaved.addEventListener("click", () => {
+    dirty = false;
+    renderMode();
+    transferCard.hidden = true;
+    setStatus("保存済みとして記録しました。");
+  });
+
+  transferClose.addEventListener("click", () => { transferCard.hidden = true; });
+
+  // ---------------------------- まとめのコピー ----------------------------
+
+  copyBtn.addEventListener("click", async () => {
+    const lines = ["【先生の最優先メモ】", ""];
+    const priorities = data.filter(x => x.priority);
+    lines.push("■ 最優先");
+    if(priorities.length){
+      priorities.forEach(x => lines.push(`・${x.text}（${x.category}）`));
+    } else {
+      lines.push("・なし");
+    }
+    lines.push("");
+
+    CATEGORIES.forEach(cat => {
+      lines.push(`■ ${cat}`);
+      const items = data.filter(x => x.category === cat);
+      if(items.length){
+        items.forEach(x => lines.push(`・${x.text}${x.priority ? " ★" : ""}`));
+      } else {
+        lines.push("・なし");
+      }
+      lines.push("");
+    });
+
+    lines.push("■ 月曜の最初の行動");
+    lines.push(firstAction.value.trim() || "要確認");
+
+    const out = lines.join("\n");
+    const ok = await copyText(out);
+    if (ok) {
+      setStatus("まとめをコピーしました。");
+    } else {
+      openTransfer({
+        title: "まとめ",
+        hint: "自動でコピーできませんでした。下の枠を長押しして「すべてを選択」→「コピー」してください。",
+        value: out
+      });
+    }
+  });
+
+  clearBtn.addEventListener("click", () => {
+    if(!confirm("入力した項目を全部消しますか？ この操作は取り消せません。")) return;
+    data = [];
+    firstAction.value = "";
+    if (autoSave) {
+      try {
+        window.localStorage.removeItem(STORE_KEY);
+        window.localStorage.removeItem(FIRST_KEY);
+      } catch (e) { /* 消せなくても続行 */ }
+    }
+    dirty = false;
+    persist();
+    render();
+    renderMode();
+    setStatus("全部消しました。");
+  });
+
+  // ---------------------------- 起動 ----------------------------
+
+  foot.textContent = autoSave
+    ? "このページは入力内容を端末の中だけに保存します。外部に送信することはありません。"
+    : "オフラインで動いています。入力内容が外部に送られることはありません。";
+
+  render();
+  renderMode();
+})();
+</script>
+</body>
+</html>
